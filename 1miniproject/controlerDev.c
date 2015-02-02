@@ -20,22 +20,22 @@ int sum_array(float a[], int num_elements){
 }
 
 int main(){
-    float readings[TIME_READING_WINDOW]; //allocate array for sensor readings
+    //allocate array for sensor readings:
+    float readings[TIME_READING_WINDOW]; 
     
-    float sensorReading = 5; //pseudo sensor reading
+    float sensorReading = 5; //pseudo sensor reading, TODO: REPLACE WITH REAL VALUE
     
     for(int i=1; i<TIME_READING_WINDOW-1; ++i){
-        if(readings[i]>0.0000){
-            readings[i-1] = readings[i]; //Shift out the oldest sensor reading
+        //Shift out the oldest sensor reading:
+        if(readings[i]>0.1000){
+            readings[i-1] = readings[i]; 
         }
         else{
             readings[i-1] = sensorReading;
         }
     }
-    
+    //Write the current sensor reading to end of array:
     readings[TIME_READING_WINDOW-1] = sensorReading;
-    printf("Time reading window: %3d\n",TIME_READING_WINDOW);
-    printf("Written value to array is: %3.3f \n", readings[TIME_READING_WINDOW-1]);
     
     for(int i=0; i<=TIME_READING_WINDOW-1; i++){
         printf("Array value at %2d is: %f \n",i,readings[i]);
