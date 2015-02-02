@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #define TIME_READING_WINDOW 30
+#define SET_POINT 45
+#define K 2
 
 int sum_array(float a[], int num_elements){
     /*Written by:
@@ -23,23 +25,26 @@ int main(){
     float sensorReading = 5; //pseudo sensor reading
     
     for(int i=1; i<TIME_READING_WINDOW-1; ++i){
-        readings[i-1] = readings[1]; //Shift out the oldest sensor reading
-        readings[TIME_READING_WINDOW-1] = sensorReading;
-        
-        //Togel sensor reading value: TODO: DELETE & REPLACE.
-        if(sensorReading == 5){
-            sensorReading = 6; 
+        if(readings[i]>0.0000){
+            readings[i-1] = readings[i]; //Shift out the oldest sensor reading
         }
         else{
-            sensorReading = 5;
+            readings[i-1] = sensorReading;
         }
     }
     
-    for(int i=0; i<TIME_READING_WINDOW-1; ++i){
-        printf("Array value at %2d is: %f \n",i,readings[1]);
+    readings[TIME_READING_WINDOW-1] = sensorReading;
+    printf("Time reading window: %3d\n",TIME_READING_WINDOW);
+    printf("Written value to array is: %3.3f \n", readings[TIME_READING_WINDOW-1]);
+    
+    for(int i=0; i<=TIME_READING_WINDOW-1; i++){
+        printf("Array value at %2d is: %f \n",i,readings[i]);
     }
+    
     float sum_sensor_readings = sum_array(readings, 30);
+    float current_position = sum_sensor_readings/TIME_READING_WINDOW; 
+    float motor_command = K*(SET_POINT - current_position);
     printf("The sum of the sensor readings is: %6.1f \n", sum_sensor_readings);
-    printf("Hi!\n");
+
     return 0;
 }
