@@ -9,7 +9,7 @@ http://www.facstaff.bucknell.edu/mastascu/eControlHTML/PID/PID2.html
 #include <stdio.h>
 
 #define TIME_READING_WINDOW 30
-#define SET_POINT 6
+#define SET_POINT 30
 #define KP 2
 //KI will be what the integral control is devided by, 
 // for the KI you want, compute KI_desired^(-1)
@@ -22,7 +22,8 @@ int sum_array(int a[], int num_elements){
     /*Written by:
     Peter H. Anderson, MSU, Feb 21, '97
     http://www.phanderson.com/C/arraysum.html
-    '*/
+    
+    Sum specified elements in an array, a. */
     int i;
     int sum=0;
     for (i=0; i<num_elements; i++)
@@ -33,6 +34,7 @@ int sum_array(int a[], int num_elements){
 }
 
 int sum_error(int a[], int num_elements){
+    /*Computes the sum of the difference error     */
     int sum_errors = 0;
     int error = 0;
     for(int i=0; i<num_elements;++i){
@@ -92,8 +94,8 @@ int main(){
     
     //Compute motor control signal with porportional control:
     int motor_command_portional = KP*(SET_POINT - current_position);
-    int motor_command_integral = sum_error_readings/KI;
-    int motor_command_derivative = sum_difference_readings/KD;
+    int motor_command_integral = sum_error_readings/KI/TIME_READING_WINDOW;
+    int motor_command_derivative = sum_difference_readings/KD/TIME_READING_WINDOW;
     
     printf("The sum of the sensor readings is: %3d \n", sum_sensor_readings);
     printf("Current position is: %3d\n",current_position);
