@@ -1,17 +1,30 @@
+/*Code written by Halie Murray-Davis for Elecanisms at Franklin W. 
+Olin College of Engineering in Feburary 2015. 
+
+Agknowledgements: 
+Integral control based off: 
+http://www.facstaff.bucknell.edu/mastascu/eControlHTML/PID/PID2.html
+*/
+
 #include <stdio.h>
 
 #define TIME_READING_WINDOW 30
-#define SET_POINT 45
-#define K 2
+#define SET_POINT 6
+#define KP 2
+//KI will be what the integral control is devided by, 
+// for the KI you want, compute KI_desired^(-1)
+#define KI 4
+//KD will be what deritive control is devided by,
+//cor the KD you want, compute KD_desired^(-1)
+#define KD 1
 
-float sum_array(float a[], int num_elements){
+int sum_array(int a[], int num_elements){
     /*Written by:
     Peter H. Anderson, MSU, Feb 21, '97
     http://www.phanderson.com/C/arraysum.html
-    
-    Modified for floating point addition by Halie Murray-Davis, Feb 1, '15'*/
+    '*/
     int i;
-    float sum=0;
+    int sum=0;
     for (i=0; i<num_elements; i++)
     {
      sum = sum + a[i];
@@ -19,41 +32,74 @@ float sum_array(float a[], int num_elements){
     return(sum);
 }
 
+int sum_error(int a[], int num_elements){
+    int sum_errors = 0;
+    int error = 0;
+    for(int i=0; i<num_elements;++i){
+        error = SET_POINT - a[i];
+        sum_errors = sum_errors + error;
+    }
+    return sum_errors;
+}
+
+int sum_difference(int a[], int num_elements){
+    int sum_difference = 0;
+    int difference = 0;
+    
+    for(int i=1; i<num_elements; i++){
+        difference = a[i]-a[i-1];
+        //printf("Diff is: %2d\n",difference);
+        sum_difference = sum_difference + difference;
+    }
+    //printf("Sum diff is: %2d\n",sum_difference);
+    return sum_difference;
+}
+
 int main(){
     //allocate array for sensor readings:
-    float readings[TIME_READING_WINDOW]; 
-    //Oust the deamons:
+    int readings[TIME_READING_WINDOW]; 
+    int sensorReading = 5; //pseudo sensor reading, TODO: REPLACE WITH REAL VALUE
+    
+    //Oust the deamons: (Initialize array)
     for(int i=0; i<TIME_READING_WINDOW; ++i){
         readings[i]=0;
     }
-    float sensorReading = 5; //pseudo sensor reading, TODO: REPLACE WITH REAL VALUE
     
+    //Loop through the array and discard the oldest position reading:
     for(int i=1; i<TIME_READING_WINDOW; ++i){
-        //Shift out the oldest sensor reading:
         if(readings[i]>0.1000){
             readings[i-1] = readings[i]; 
         }
         else{
             readings[i-1] = sensorReading;
-        }
+        }        
     }
     
     //Write the current sensor reading to end of array:
     readings[TIME_READING_WINDOW-1] = sensorReading;
     
-    /* Print array values, Debug only.
+    /* Print array values, Debug only. */
     for(int i=0; i<=TIME_READING_WINDOW-1; i++){
-        printf("Array value at %2d is: %f \n", i, readings[i]);
-    }*/
+        printf("Array value at %2d is: %2d \n", i, readings[i]);
+    }
     
-    float sum_sensor_readings = sum_array(readings, 30);
+    int sum_sensor_readings = sum_array(readings, 30);
+    int sum_error_readings = sum_error(readings, 30);
+    int sum_difference_readings = sum_difference(readings,30);
     
     //Average sensor readings in time window to get approximate current position:
-    float current_position = sum_sensor_readings/TIME_READING_WINDOW; 
-    float motor_command = K*(SET_POINT - current_position);
-    printf("The sum of the sensor readings is: %6.1f \n", sum_sensor_readings);
-    printf("Current position is: %3.4f\n",current_position);
-    printf("Command for motor is: %3.4f\n",motor_command);
+    int current_position = sum_sensor_readings/TIME_READING_WINDOW; 
+    
+    //Compute motor control signal with porportional control:
+    int motor_command_portional = KP*(SET_POINT - current_position);
+    int motor_command_integral = sum_error_readings/KI;
+    int motor_command_derivative = sum_difference_readings/KD;
+    
+    printf("The sum of the sensor readings is: %3d \n", sum_sensor_readings);
+    printf("Current position is: %3d\n",current_position);
+    printf("Command for porportional motor control is: %3d\n",motor_command_portional);
+    printf("Command for integral motor control is: %3d\n",motor_command_integral);
+    printf("Command for deritive motor control is: %3d\n",motor_command_derivative);
 
     return 0;
 }
