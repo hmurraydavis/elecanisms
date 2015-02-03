@@ -34,7 +34,9 @@ int sum_array(int a[], int num_elements){
 }
 
 int sum_error(int a[], int num_elements){
-    /*Computes the sum of the difference error     */
+    /*Computes the sum of the error terms as computed by the difference
+    in the set point and recorded point. Does this for specified 
+    elements in an array and returns the sum of these error terms.*/
     int sum_errors = 0;
     int error = 0;
     for(int i=0; i<num_elements;++i){
@@ -45,6 +47,10 @@ int sum_error(int a[], int num_elements){
 }
 
 int sum_difference(int a[], int num_elements){
+    /*Computes the sum of the difference between terms. This is an
+    approximation of the derivative of the position. Returns the sum
+    of these diferences for the aray and length of said array 
+    specified. */
     int sum_difference = 0;
     int difference = 0;
     
@@ -92,11 +98,12 @@ int main(){
     //Average sensor readings in time window to get approximate current position:
     int current_position = sum_sensor_readings/TIME_READING_WINDOW; 
     
-    //Compute motor control signal with porportional control:
+    //Compute motor control signal with control:
     int motor_command_portional = KP*(SET_POINT - current_position);
     int motor_command_integral = sum_error_readings/KI/TIME_READING_WINDOW;
     int motor_command_derivative = sum_difference_readings/KD/TIME_READING_WINDOW;
     
+    //Print computed values for debugging purposes. Comment out on PIC. 
     printf("The sum of the sensor readings is: %3d \n", sum_sensor_readings);
     printf("Current position is: %3d\n",current_position);
     printf("Command for porportional motor control is: %3d\n",motor_command_portional);
